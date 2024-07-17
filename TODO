@@ -1,0 +1,3 @@
+Reorganize files, move headers to `include`
+Write tests with GTest (yes, using C++)
+Write examples for every container and function
