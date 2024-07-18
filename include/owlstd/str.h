@@ -34,7 +34,7 @@ Create an `owl_str_const` object from a c-style string
 owl_str_const_t owl_str_from_const_cstr(const char* cstr);
 
 /*
-Create an `owl_str_const` object from an `owl-str` object
+Create an `owl_str_const` object from an `owl_str` object
 */
 owl_str_const_t owl_str_const_from_mut(owl_str_t s);
 

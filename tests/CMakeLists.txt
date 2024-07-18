@@ -25,10 +25,12 @@ endmacro()
 
 set(TESTS
   vector
+  str
 )
 
 set(TESTS_SRC
   vector.cc
+  str.cc
 )
 
 foreach(test file IN ZIP_LISTS TESTS TESTS_SRC)
