@@ -18,7 +18,7 @@ static size_t round_up_to_the_power_of_two(const size_t n) {
 }
 
 void owl_vector_reserve(owl_vector_t* vec, const size_t elem_size,
-                    const size_t new_capacity) {
+                        const size_t new_capacity) {
     if (vec->capacity >= new_capacity) {
         return;
     }

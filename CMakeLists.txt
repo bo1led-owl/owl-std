@@ -16,7 +16,6 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/str.c
   src/str_hashmap.c
   src/vector.c
-  src/queue.c
 )
 
 target_include_directories(${PROJECT_NAME}
