@@ -23,6 +23,16 @@ macro(add_test_target NAME)
   gtest_discover_tests(${NAME})
 endmacro()
 
-add_test_target(tests
+set(TESTS
+  vector
+)
+
+set(TESTS_SRC
   vector.cc
 )
+
+foreach(test file IN ZIP_LISTS TESTS TESTS_SRC)
+  add_test_target(${test} ${file})
+endforeach()
+
+add_test_target(full ${TESTS_SRC})
