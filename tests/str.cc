@@ -4,6 +4,17 @@
 
 #include <cstring>
 
+template <typename T>
+int sign(const T x) {
+    if (x < 0) {
+        return -1;
+    } else if (x > 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 TEST(Str, FromCStr) {
     char cstr_mut[] = "hello";
     owl_str_t str_mut = owl_str_from_cstr(cstr_mut);
@@ -19,7 +30,7 @@ TEST(Str, ConstFromMut) {
     owl_str_t str_mut = owl_str_from_cstr(cstr);
     owl_str_const_t str_const = owl_str_const_from_mut(str_mut);
 
-    EXPECT_TRUE(strcmp(str_mut.data, str_const.data) == 0);
+    EXPECT_TRUE(sign(strcmp(str_mut.data, str_const.data)) == 0);
     EXPECT_EQ(str_mut.len, str_const.len);
 }
 
@@ -27,32 +38,32 @@ TEST(Str, CompareBasic) {
     const owl_str_const_t s1 = owl_str_from_const_cstr("aa");
     const owl_str_const_t s2 = owl_str_from_const_cstr("ab");
 
-    EXPECT_EQ(strcmp(s1.data, s2.data), owl_str_compare(s1, s2));
-    EXPECT_EQ(strcmp(s2.data, s1.data), owl_str_compare(s2, s1));
+    EXPECT_EQ(sign(strcmp(s1.data, s2.data)), owl_str_compare(s1, s2));
+    EXPECT_EQ(sign(strcmp(s2.data, s1.data)), owl_str_compare(s2, s1));
 
-    EXPECT_EQ(strcmp(s1.data, s1.data), owl_str_compare(s1, s1));
-    EXPECT_EQ(strcmp(s2.data, s2.data), owl_str_compare(s2, s2));
+    EXPECT_EQ(sign(strcmp(s1.data, s1.data)), owl_str_compare(s1, s1));
+    EXPECT_EQ(sign(strcmp(s2.data, s2.data)), owl_str_compare(s2, s2));
 }
 
 TEST(Str, CompareLength) {
     const owl_str_const_t s1 = owl_str_from_const_cstr("aa");
     const owl_str_const_t s2 = owl_str_from_const_cstr("aaa");
 
-    EXPECT_EQ(strcmp(s1.data, s2.data), owl_str_compare(s1, s2));
-    EXPECT_EQ(strcmp(s2.data, s1.data), owl_str_compare(s2, s1));
+    EXPECT_EQ(sign(strcmp(s1.data, s2.data)), owl_str_compare(s1, s2));
+    EXPECT_EQ(sign(strcmp(s2.data, s1.data)), owl_str_compare(s2, s1));
 
-    EXPECT_EQ(strcmp(s1.data, s1.data), owl_str_compare(s1, s1));
-    EXPECT_EQ(strcmp(s2.data, s2.data), owl_str_compare(s2, s2));
+    EXPECT_EQ(sign(strcmp(s1.data, s1.data)), owl_str_compare(s1, s1));
+    EXPECT_EQ(sign(strcmp(s2.data, s2.data)), owl_str_compare(s2, s2));
 }
 
 TEST(Str, CompareEmpty) {
     const owl_str_const_t s = owl_str_from_const_cstr("foo");
     const owl_str_const_t s_empty = owl_str_from_const_cstr("");
 
-    EXPECT_EQ(strcmp(s_empty.data, s_empty.data),
+    EXPECT_EQ(sign(strcmp(s_empty.data, s_empty.data)),
               owl_str_compare(s_empty, s_empty));
-    EXPECT_EQ(strcmp(s_empty.data, s.data), owl_str_compare(s_empty, s));
-    EXPECT_EQ(strcmp(s.data, s_empty.data), owl_str_compare(s, s_empty));
+    EXPECT_EQ(sign(strcmp(s_empty.data, s.data)), owl_str_compare(s_empty, s));
+    EXPECT_EQ(sign(strcmp(s.data, s_empty.data)), owl_str_compare(s, s_empty));
 }
 
 TEST(Str, ToLower) {
