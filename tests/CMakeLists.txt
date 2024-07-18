@@ -26,11 +26,13 @@ endmacro()
 set(TESTS
   vector
   str
+  str_hashmap
 )
 
 set(TESTS_SRC
   vector.cc
   str.cc
+  str_hashmap.cc
 )
 
 foreach(test file IN ZIP_LISTS TESTS TESTS_SRC)

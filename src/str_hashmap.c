@@ -7,6 +7,9 @@
 #define MAX_LOAD_FACTOR 0.75
 enum {
     MIN_SIZE = 16,
+};
+
+enum {
     META_EMPTY = 0,
     META_PRESENT = 1,
 };
@@ -30,6 +33,7 @@ void owl_str_hashmap_free(owl_str_hashmap_t* map) {
 
     free(map->keys);
     free(map->values);
+    free(map->metadata);
     *map = (owl_str_hashmap_t){};
 }
 
@@ -76,7 +80,8 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
             .values = calloc(MIN_SIZE, sizeof(owl_str_t)),
             .metadata = calloc(MIN_SIZE, sizeof(char)),
             .bucket_count = MIN_SIZE,
-            .size = map->size};
+            .size = map->size,
+        };
         return;
     }
 
@@ -102,11 +107,13 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
     free(map->keys);
     free(map->values);
     free(map->metadata);
-    *map = (owl_str_hashmap_t){.keys = new_keys,
-                               .values = new_values,
-                               .metadata = new_metadata,
-                               .bucket_count = new_bucket_count,
-                               .size = map->size};
+    *map = (owl_str_hashmap_t){
+        .keys = new_keys,
+        .values = new_values,
+        .metadata = new_metadata,
+        .bucket_count = new_bucket_count,
+        .size = map->size,
+    };
 }
 
 int owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
@@ -134,11 +141,13 @@ void owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
 
     if (result) {
         *result = value;
+    } else {
+        map->size += 1;
     }
 }
 
-owl_str_t const* owl_str_hashmap_get(const owl_str_hashmap_t* map,
-                                     const owl_str_const_t key) {
+owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
+                               const owl_str_const_t key) {
     if (map->bucket_count == 0) {
         return NULL;
     }

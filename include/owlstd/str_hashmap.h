@@ -42,11 +42,11 @@ void owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
                                        const owl_str_t value);
 
 /*
-Get a const pointer to the value by key. Returns nullptr if the key is not
+Get a pointer to the value by key. Returns NULL if the key is not
 present
 */
-owl_str_t const* owl_str_hashmap_get(const owl_str_hashmap_t* map,
-                                     const owl_str_const_t key);
+owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
+                               const owl_str_const_t key);
 
 #ifdef __cplusplus
 }
