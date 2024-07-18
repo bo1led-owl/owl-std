@@ -2,6 +2,10 @@
 
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
 Dynamic array of any type.
 Does not contain information about element size, make sure that `elem_size`
@@ -34,3 +38,7 @@ void owl_vector_pop(owl_vector_t* vec, const size_t n);
 Free the buffer and set all the fields to zero
 */
 void owl_vector_free(owl_vector_t* vec);
+
+#ifdef __cplusplus
+}
+#endif

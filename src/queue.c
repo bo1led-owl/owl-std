@@ -35,5 +35,5 @@ int owl_queue_pop(owl_queue_t* q, const size_t size, void* result) {
 void owl_queue_free(owl_queue_t* q) {
     owl_vector_free(&q->left);
     owl_vector_free(&q->right);
-    *q = (owl_queue_t){0};
+    *q = (owl_queue_t){};
 }

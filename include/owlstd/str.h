@@ -2,6 +2,10 @@
 
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
 String slice.
 Is not guaranteed to be null-terminated.
@@ -64,3 +68,7 @@ size_t owl_str_hash(const owl_str_t s);
 Print given string to the default stdio
 */
 void owl_str_print(const owl_str_t s);
+
+#ifdef __cplusplus
+}
+#endif

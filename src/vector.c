@@ -53,5 +53,5 @@ void owl_vector_free(owl_vector_t* vec) {
     }
 
     free(vec->items);
-    *vec = (owl_vector_t){0};
+    *vec = (owl_vector_t){};
 }

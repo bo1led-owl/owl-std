@@ -2,7 +2,11 @@
 
 #include <stddef.h>
 
-#include "vector.h"
+#include "owlstd/vector.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct owl_queue {
     owl_vector_t left;
@@ -24,3 +28,7 @@ int owl_queue_pop(owl_queue_t* q, const size_t size, void* result);
 Free memory allocated by a queue
 */
 void owl_queue_free(owl_queue_t* q);
+
+#ifdef __cplusplus
+}
+#endif

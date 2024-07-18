@@ -2,6 +2,10 @@
 
 #include "str.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct str_hashmap {
     struct str_pair {
         owl_str_t key, value;
@@ -25,17 +29,23 @@ void owl_str_hashmap_free(str_hashmap_t* map);
 Insert a new key-value pair into the hashmap. Returns whether the key was
 present
 */
-int owl_str_hashmap_insert(str_hashmap_t* map, const owl_str_t key, const owl_str_t value);
+int owl_str_hashmap_insert(str_hashmap_t* map, const owl_str_t key,
+                           const owl_str_t value);
 
 /*
 Insert a key-value pair into the hashmap, or replace the value if the key was
 already present
 */
 void owl_str_hashmap_insert_or_replace(str_hashmap_t* map, const owl_str_t key,
-                                   const owl_str_t value);
+                                       const owl_str_t value);
 
 /*
 Get a const pointer to the value by key. Returns nullptr if the key is not
 present
 */
-owl_str_t const* owl_str_hashmap_get(const str_hashmap_t* map, const owl_str_t key);
+owl_str_t const* owl_str_hashmap_get(const str_hashmap_t* map,
+                                     const owl_str_t key);
+
+#ifdef __cplusplus
+}
+#endif

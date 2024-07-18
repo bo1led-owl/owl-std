@@ -53,7 +53,7 @@ void owl_str_to_upper(owl_str_t s) {
 
 owl_str_t owl_str_trim(const owl_str_t s) {
     if (!s.data) {
-        return (owl_str_t){0};
+        return (owl_str_t){};
     }
 
     owl_str_t res = s;

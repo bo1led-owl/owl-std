@@ -27,7 +27,7 @@ void owl_str_hashmap_free(str_hashmap_t* map) {
         return;
 
     free(map->data);
-    *map = (str_hashmap_t){0};
+    *map = (str_hashmap_t){};
 }
 
 static size_t probe(const size_t i, const size_t bucket_count) {
