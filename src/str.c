@@ -20,7 +20,7 @@ owl_str_const_t owl_str_const_from_mut(const owl_str_t s) {
     return (owl_str_const_t){.data = s.data, .len = s.len};
 }
 
-int owl_str_compare(const owl_str_t a, const owl_str_t b) {
+int owl_str_compare(const owl_str_const_t a, const owl_str_const_t b) {
     const size_t len = min(a.len, b.len);
     for (size_t i = 0; i < len; ++i) {
         if (a.data[i] > b.data[i]) {
@@ -51,12 +51,12 @@ void owl_str_to_upper(owl_str_t s) {
     }
 }
 
-owl_str_t owl_str_trim(const owl_str_t s) {
+owl_str_const_t owl_str_trim(const owl_str_const_t s) {
     if (!s.data) {
-        return (owl_str_t){};
+        return (owl_str_const_t){};
     }
 
-    owl_str_t res = s;
+    owl_str_const_t res = s;
     for (size_t i = 0; i < s.len; ++i) {
         if (!isspace(s.data[i])) {
             break;
@@ -77,7 +77,7 @@ owl_str_t owl_str_trim(const owl_str_t s) {
 }
 
 // djb2 algorithm
-size_t owl_str_hash(const owl_str_t s) {
+size_t owl_str_hash(const owl_str_const_t s) {
     size_t hash = 5381;
     for (size_t i = 0; i < s.len; ++i) {
         hash = ((hash << 5) + hash) + s.data[i];
@@ -86,7 +86,7 @@ size_t owl_str_hash(const owl_str_t s) {
     return hash;
 }
 
-void owl_str_print(const owl_str_t s) {
+void owl_str_print(const owl_str_const_t s) {
     if (!s.data) {
         return;
     }

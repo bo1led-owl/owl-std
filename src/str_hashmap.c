@@ -9,11 +9,10 @@ enum {
     MIN_SIZE = 16,
 };
 
-typedef struct str_pair str_pair_t;
-
-void owl_str_hashmap_clear(str_hashmap_t* map) {
-    if (!map)
+void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
+    if (!map) {
         return;
+    }
 
     for (size_t i = 0; i < map->bucket_count; ++i) {
         map->metadata[i] = 0;
@@ -22,12 +21,14 @@ void owl_str_hashmap_clear(str_hashmap_t* map) {
     map->size = 0;
 }
 
-void owl_str_hashmap_free(str_hashmap_t* map) {
-    if (!map)
+void owl_str_hashmap_free(owl_str_hashmap_t* map) {
+    if (!map) {
         return;
+    }
 
-    free(map->data);
-    *map = (str_hashmap_t){};
+    free(map->keys);
+    free(map->values);
+    *map = (owl_str_hashmap_t){};
 }
 
 static size_t probe(const size_t i, const size_t bucket_count) {
@@ -35,24 +36,26 @@ static size_t probe(const size_t i, const size_t bucket_count) {
     return (i + 1) % bucket_count;
 }
 
-static owl_str_t* insert(str_pair_t* data, char* metadata,
-                     const size_t bucket_count, const str_pair_t* item) {
-    const size_t hash = owl_str_hash(item->key) % bucket_count;
+static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
+                         char* metadata, const size_t bucket_count,
+                         const owl_str_const_t* key, const owl_str_t* value) {
+    const size_t hash = owl_str_hash(*key) % bucket_count;
 
     for (size_t i = hash;; i = probe(i, bucket_count)) {
         if (!metadata[i]) {
             metadata[i] = 1;
-            memcpy(data + i, item, sizeof(str_pair_t));
+            memcpy(keys + i, key, sizeof(owl_str_const_t));
+            memcpy(values + i, value, sizeof(owl_str_t));
             return NULL;
         }
 
-        if (owl_str_compare(data[i].key, item->key) == 0) {
-            return &data[i].value;
+        if (owl_str_compare(keys[i], *key) == 0) {
+            return &values[i];
         }
     }
 }
 
-static double load_factor(const str_hashmap_t* map) {
+static double load_factor(const owl_str_hashmap_t* map) {
     if (map->bucket_count == 0) {
         return INFINITY;
     }
@@ -60,71 +63,83 @@ static double load_factor(const str_hashmap_t* map) {
     return (double)map->size / (double)map->bucket_count;
 }
 
-static void resize_if_needed(str_hashmap_t* map) {
+static void resize_if_needed(owl_str_hashmap_t* map) {
     if (load_factor(map) < MAX_LOAD_FACTOR) {
         return;
     }
 
     if (map->bucket_count == 0) {
-        *map = (str_hashmap_t){.data = calloc(MIN_SIZE, sizeof(str_pair_t)),
-                               .metadata = calloc(MIN_SIZE, sizeof(char)),
-                               .bucket_count = MIN_SIZE,
-                               .size = map->size};
+        *map = (owl_str_hashmap_t){
+            .keys = calloc(MIN_SIZE, sizeof(owl_str_const_t)),
+            .values = calloc(MIN_SIZE, sizeof(owl_str_t)),
+            .metadata = calloc(MIN_SIZE, sizeof(char)),
+            .bucket_count = MIN_SIZE,
+            .size = map->size};
         return;
     }
 
     const size_t new_bucket_count = map->bucket_count * 2;
-    str_pair_t* new_data = malloc(new_bucket_count * sizeof(str_pair_t));
+    owl_str_const_t* new_keys =
+        malloc(new_bucket_count * sizeof(owl_str_const_t));
+    owl_str_t* new_values = malloc(new_bucket_count * sizeof(owl_str_t));
     char* new_metadata = calloc(new_bucket_count, sizeof(char));
 
     // rehashing
     for (size_t i = 0, moved_elements = 0;
          i < map->bucket_count && moved_elements < map->size; ++i) {
-        if (!map->metadata[i])
+        if (!map->metadata[i]) {
             continue;
+        }
 
-        insert(new_data, new_metadata, new_bucket_count, &map->data[i]);
+        insert(new_keys, new_values, new_metadata, new_bucket_count,
+               &map->keys[i], &map->values[i]);
 
         moved_elements += 1;
     }
 
-    free(map->data);
+    free(map->keys);
+    free(map->values);
     free(map->metadata);
-    *map = (str_hashmap_t){.data = new_data,
-                           .metadata = new_metadata,
-                           .bucket_count = new_bucket_count,
-                           .size = map->size};
+    *map = (owl_str_hashmap_t){.keys = new_keys,
+                               .values = new_values,
+                               .metadata = new_metadata,
+                               .bucket_count = new_bucket_count,
+                               .size = map->size};
 }
 
-int owl_str_hashmap_insert(str_hashmap_t* map, const owl_str_t key,
-                        const owl_str_t value) {
+int owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
+                           const owl_str_t value) {
     resize_if_needed(map);
 
-    const str_pair_t entry = {.key = key, .value = value};
-    owl_str_t* result = insert((str_pair_t*)map->data, map->metadata, map->bucket_count, &entry);
+    owl_str_t* result = insert(map->keys, map->values, map->metadata,
+                               map->bucket_count, &key, &value);
 
-    if (!result)
+    if (!result) {
         map->size += 1;
+    }
 
     // evaluates to `true` if the value was present
     return result != NULL;
 }
 
-void owl_str_hashmap_insert_or_replace(str_hashmap_t* map, const owl_str_t key,
-                                   const owl_str_t value) {
+void owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
+                                       const owl_str_const_t key,
+                                       const owl_str_t value) {
     resize_if_needed(map);
 
-    const str_pair_t entry = {.key = key, .value = value};
-    owl_str_t* result = insert((str_pair_t*)map->data, map->metadata, map->bucket_count, &entry);
+    owl_str_t* result = insert(map->keys, map->values, map->metadata,
+                               map->bucket_count, &key, &value);
 
     if (result) {
         *result = value;
     }
 }
 
-owl_str_t const* owl_str_hashmap_get(const str_hashmap_t* map, const owl_str_t key) {
-    if (map->bucket_count == 0)
+owl_str_t const* owl_str_hashmap_get(const owl_str_hashmap_t* map,
+                                     const owl_str_const_t key) {
+    if (map->bucket_count == 0) {
         return NULL;
+    }
 
     const size_t hash = owl_str_hash(key) % map->bucket_count;
 
@@ -133,8 +148,8 @@ owl_str_t const* owl_str_hashmap_get(const str_hashmap_t* map, const owl_str_t k
             return NULL;
         }
 
-        if (owl_str_compare(map->data[i].key, key) == 0) {
-            return &map->data[i].value;
+        if (owl_str_compare(map->keys[i], key) == 0) {
+            return &map->values[i];
         }
     }
 }
