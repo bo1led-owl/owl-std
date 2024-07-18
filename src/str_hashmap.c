@@ -7,6 +7,8 @@
 #define MAX_LOAD_FACTOR 0.75
 enum {
     MIN_SIZE = 16,
+    META_EMPTY = 0,
+    META_PRESENT = 1,
 };
 
 void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
@@ -15,7 +17,7 @@ void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
     }
 
     for (size_t i = 0; i < map->bucket_count; ++i) {
-        map->metadata[i] = 0;
+        map->metadata[i] = META_EMPTY;
     }
 
     map->size = 0;
@@ -42,8 +44,8 @@ static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
     const size_t hash = owl_str_hash(*key) % bucket_count;
 
     for (size_t i = hash;; i = probe(i, bucket_count)) {
-        if (!metadata[i]) {
-            metadata[i] = 1;
+        if (metadata[i] == META_EMPTY) {
+            metadata[i] = META_PRESENT;
             memcpy(keys + i, key, sizeof(owl_str_const_t));
             memcpy(values + i, value, sizeof(owl_str_t));
             return NULL;
@@ -87,7 +89,7 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
     // rehashing
     for (size_t i = 0, moved_elements = 0;
          i < map->bucket_count && moved_elements < map->size; ++i) {
-        if (!map->metadata[i]) {
+        if (map->metadata[i] == META_EMPTY) {
             continue;
         }
 
@@ -144,7 +146,7 @@ owl_str_t const* owl_str_hashmap_get(const owl_str_hashmap_t* map,
     const size_t hash = owl_str_hash(key) % map->bucket_count;
 
     for (size_t i = hash;; i = probe(i, map->bucket_count)) {
-        if (!map->metadata[i]) {
+        if (map->metadata[i] == META_EMPTY) {
             return NULL;
         }
 
