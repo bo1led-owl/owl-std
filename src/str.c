@@ -1,16 +1,23 @@
-#include "str.h"
+#include "owlstd/str.h"
 
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <sys/types.h>
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
 owl_str_t owl_str_from_cstr(char* cstr) {
     return (owl_str_t){.data = cstr, .len = strlen(cstr)};
+}
+
+owl_str_const_t owl_str_from_const_cstr(const char* cstr) {
+    return (owl_str_const_t){.data = cstr, .len = strlen(cstr)};
+}
+
+owl_str_const_t owl_str_const_from_mut(const owl_str_t s) {
+    return (owl_str_const_t){.data = s.data, .len = s.len};
 }
 
 int owl_str_compare(const owl_str_t a, const owl_str_t b) {
@@ -51,16 +58,18 @@ owl_str_t owl_str_trim(const owl_str_t s) {
 
     owl_str_t res = s;
     for (size_t i = 0; i < s.len; ++i) {
-        if (!isspace(s.data[i]))
+        if (!isspace(s.data[i])) {
             break;
+        }
 
         res.data += 1;
         res.len -= 1;
     }
 
     for (ssize_t i = res.len - 1; i >= 0; --i) {
-        if (!isspace(res.data[i]))
+        if (!isspace(res.data[i])) {
             break;
+        }
         res.len -= 1;
     }
 
@@ -78,8 +87,8 @@ size_t owl_str_hash(const owl_str_t s) {
 }
 
 void owl_str_print(const owl_str_t s) {
-    if (!s.data)
+    if (!s.data) {
         return;
+    }
     fwrite(s.data, sizeof(char), s.len, stdout);
 }
-

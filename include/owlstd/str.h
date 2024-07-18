@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 /*
-Non-owning string.
+String slice.
 Is not guaranteed to be null-terminated.
 */
 typedef struct owl_str {
@@ -12,9 +12,27 @@ typedef struct owl_str {
 } owl_str_t;
 
 /*
-Create a `str` object from a c-style string
+String slice pointing to non mutable data.
+*/
+typedef struct owl_str_const {
+    char const* data;
+    size_t len;
+} owl_str_const_t;
+
+/*
+Create a `owl_str` object from a c-style string
 */
 owl_str_t owl_str_from_cstr(char* cstr);
+
+/*
+Create a `owl_str_const` object from a c-style string
+*/
+owl_str_const_t owl_str_from_const_cstr(const char* cstr);
+
+/*
+Create a `owl_str_const` object from a c-style string
+*/
+owl_str_const_t owl_str_const_from_mut(owl_str_t s);
 
 /*
 Lexicographically compare two strings. Returns -1 if `a` < `b`, 0
