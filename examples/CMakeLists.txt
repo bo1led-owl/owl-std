@@ -6,4 +6,5 @@ function(add_example NAME SRC)
 endfunction()
 
 add_example(str str.c)
+add_example(str_hashmap str_hashmap.c)
 add_example(vector vector.c)

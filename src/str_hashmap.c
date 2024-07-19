@@ -116,7 +116,7 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
     };
 }
 
-int owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
+owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
                            const owl_str_t value) {
     resize_if_needed(map);
 
@@ -127,11 +127,10 @@ int owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
         map->size += 1;
     }
 
-    // evaluates to `true` if the value was present
-    return result != NULL;
+    return result;
 }
 
-void owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
+owl_str_t* owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
                                        const owl_str_const_t key,
                                        const owl_str_t value) {
     resize_if_needed(map);
@@ -144,6 +143,8 @@ void owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
     } else {
         map->size += 1;
     }
+
+    return result;
 }
 
 owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,

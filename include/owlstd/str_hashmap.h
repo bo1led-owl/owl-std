@@ -27,19 +27,19 @@ Free memory allocated to the hashmap, setting all its fields to zero
 void owl_str_hashmap_free(owl_str_hashmap_t* map);
 
 /*
-Insert a new key-value pair into the hashmap. Returns whether the key was
-present
+Insert a new key-value pair into the hashmap. Returns a pointer to the inserted
+value or an existing value if the key was present
 */
-int owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
+owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
                            const owl_str_t value);
 
 /*
 Insert a key-value pair into the hashmap, or replace the value if the key was
-already present
+already present. Returns a pointer to the inserted or replaced value
 */
-void owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
-                                       const owl_str_const_t key,
-                                       const owl_str_t value);
+owl_str_t* owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
+                                             const owl_str_const_t key,
+                                             const owl_str_t value);
 
 /*
 Get a pointer to the value by key. Returns NULL if the key is not
