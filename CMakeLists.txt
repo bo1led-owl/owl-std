@@ -28,9 +28,9 @@ if (BUILD_TESTS)
   add_subdirectory(tests)
 endif(BUILD_TESTS)
 
-# if (BUILD_EXAMPLES)
-#   add_subdirectory(examples)
-# endif(BUILD_EXAMPLES)
+if (BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif(BUILD_EXAMPLES)
 
 if (ENABLE_CCACHE)
   find_program(CCACHE_FOUND ccache)
