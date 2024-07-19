@@ -6,3 +6,4 @@ function(add_example NAME SRC)
 endfunction()
 
 add_example(str str.c)
+add_example(vector vector.c)
