@@ -20,6 +20,11 @@ owl_str_const_t owl_str_const_from_mut(const owl_str_t s) {
     return (owl_str_const_t){.data = s.data, .len = s.len};
 }
 
+void owl_str_copy(owl_str_t* dest, owl_str_const_t src) {
+    memcpy(dest->data, src.data, sizeof(char) * src.len);
+    dest->len = src.len;
+}
+
 int owl_str_compare(const owl_str_const_t a, const owl_str_const_t b) {
     const size_t len = min(a.len, b.len);
     for (size_t i = 0; i < len; ++i) {

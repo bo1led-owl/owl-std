@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "owlstd/str.h"
 
@@ -38,7 +37,7 @@ int main() {
     putchar('\n');
 
     // we can change the value directly:
-    memcpy(alices_number->data, "456", 3);
+    owl_str_copy(alices_number, owl_str_from_const_cstr("456"));
 
     // or replace it:
     owl_str_hashmap_insert_or_replace(

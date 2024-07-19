@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 /// to check whether the string is a palindrome, we don't need to mutate it, so
 /// `str_const_t` is a better use
@@ -28,7 +27,7 @@ void print_in_all_cases(owl_str_const_t s) {
         .data = malloc(s.len * sizeof(char)),
         .len = s.len,
     };
-    memcpy(buf.data, s.data, sizeof(char) * s.len);
+    owl_str_copy(&buf, s);
 
     printf("original: `");
     owl_str_print(owl_str_const_from_mut(buf));

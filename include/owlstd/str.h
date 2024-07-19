@@ -39,6 +39,12 @@ Create an `owl_str_const` object from an `owl_str` object
 owl_str_const_t owl_str_const_from_mut(owl_str_t s);
 
 /*
+Copy string data from `src` to `dest`. If `dest` has insufficient space,
+behavior is undefined
+*/
+void owl_str_copy(owl_str_t* dest, owl_str_const_t src);
+
+/*
 Lexicographically compare two strings. Returns -1 if `a` < `b`, 0
 if `a` == `b` and 1 if `a` > `b`
 */
