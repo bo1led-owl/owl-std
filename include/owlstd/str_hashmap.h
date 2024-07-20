@@ -50,6 +50,11 @@ present
 owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
                                const owl_str_const_t key);
 
+/*
+Remove the key-value pair from the map
+*/
+void owl_str_hashmap_erase(owl_str_hashmap_t* map, const owl_str_const_t key);
+
 #ifdef __cplusplus
 }
 #endif

@@ -206,3 +206,26 @@ owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
         }
     }
 }
+
+void owl_str_hashmap_erase(owl_str_hashmap_t* map, const owl_str_const_t key) {
+    assert(map);
+
+    if (map->bucket_count == 0) {
+        return;
+    }
+
+    const size_t hash = owl_str_hash(key) % map->bucket_count;
+
+    for (size_t i = hash;; i = probe(i, map->bucket_count)) {
+        const int is_empty = bitset_get(map->metadata, i) == META_EMPTY;
+        if (is_empty) {
+            return;
+        }
+
+        const int found = owl_str_compare(map->keys[i], key) == 0;
+        if (found) {
+            bitset_set(map->metadata, i, META_EMPTY);
+            return;
+        }
+    }
+}
