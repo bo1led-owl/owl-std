@@ -100,3 +100,9 @@ TEST(StrHashMap, InsertOrReplace) {
 
     owl_str_hashmap_free(&map);
 }
+
+TEST(StrHashMap, GetFromEmptyMap) {
+    owl_str_hashmap_t map = {};
+
+    EXPECT_EQ(NULL, owl_str_hashmap_get(&map, owl_str_from_const_cstr("foo")));
+}
