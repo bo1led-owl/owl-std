@@ -10,7 +10,7 @@ enum {
     MIN_SIZE = 16,
 };
 
-typedef enum : uint8_t {
+typedef enum {
     META_EMPTY = 0,
     META_PRESENT = 1,
 } metadata_state_t;
@@ -19,22 +19,21 @@ static metadata_state_t bitset_get(const uint8_t* bitset, const size_t i) {
     assert(bitset);
     const size_t byte_index = i / 8;
     const size_t bit_index = i % 8;
-    return bitset[byte_index] >> bit_index;
+    return (bitset[byte_index] >> bit_index) & 1;
 }
 
-static void bitset_set(uint8_t* bitset, const size_t i,
-                       const metadata_state_t value) {
+static void bitset_set(uint8_t* bitset, const size_t i) {
     assert(bitset);
     const size_t byte_index = i / 8;
-    const size_t bit_index = i % 8;
-    switch (value) {
-        case META_EMPTY:
-            bitset[byte_index] &= ~(1 << bit_index);
-            return;
-        case META_PRESENT:
-            bitset[byte_index] |= 1 << bit_index;
-            return;
-    }
+    const uint8_t bit_index = i % 8;
+    bitset[byte_index] |= (uint8_t)1 << bit_index;
+}
+
+static void bitset_reset(uint8_t* bitset, const size_t i) {
+    assert(bitset);
+    const size_t byte_index = i / 8;
+    const uint8_t bit_index = i % 8;
+    bitset[byte_index] &= ~((uint8_t)1 << bit_index);
 }
 
 static size_t bitset_bytes_needed(const size_t n) {
@@ -44,7 +43,7 @@ static size_t bitset_bytes_needed(const size_t n) {
 
 static size_t probe(const size_t i, const size_t bucket_count) {
     // TODO: another kind of probing?
-    return (i + 1) % bucket_count;
+    return (i + (size_t)1) % bucket_count;
 }
 
 static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
@@ -60,7 +59,7 @@ static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
 
     for (size_t i = hash;; i = probe(i, bucket_count)) {
         if (bitset_get(metadata, i) == META_EMPTY) {
-            bitset_set(metadata, i, META_PRESENT);
+            bitset_set(metadata, i);
             memcpy(keys + i, key, sizeof(owl_str_const_t));
             memcpy(values + i, value, sizeof(owl_str_t));
             return NULL;
@@ -190,7 +189,7 @@ owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
                                const owl_str_const_t key) {
     assert(map);
 
-    if (map->bucket_count == 0) {
+    if (map->size == 0) {
         return NULL;
     }
 
@@ -199,9 +198,7 @@ owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
     for (size_t i = hash;; i = probe(i, map->bucket_count)) {
         if (bitset_get(map->metadata, i) == META_EMPTY) {
             return NULL;
-        }
-
-        if (owl_str_compare(map->keys[i], key) == 0) {
+        } else if (owl_str_compare(map->keys[i], key) == 0) {
             return &map->values[i];
         }
     }
@@ -210,21 +207,18 @@ owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
 void owl_str_hashmap_erase(owl_str_hashmap_t* map, const owl_str_const_t key) {
     assert(map);
 
-    if (map->bucket_count == 0) {
+    if (map->size == 0) {
         return;
     }
 
     const size_t hash = owl_str_hash(key) % map->bucket_count;
 
     for (size_t i = hash;; i = probe(i, map->bucket_count)) {
-        const int is_empty = bitset_get(map->metadata, i) == META_EMPTY;
-        if (is_empty) {
+        if (bitset_get(map->metadata, i) == META_EMPTY) {
             return;
-        }
-
-        const int found = owl_str_compare(map->keys[i], key) == 0;
-        if (found) {
-            bitset_set(map->metadata, i, META_EMPTY);
+        } else if (owl_str_compare(map->keys[i], key) == 0) {
+            bitset_reset(map->metadata, i);
+            map->size -= 1;
             return;
         }
     }
