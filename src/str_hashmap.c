@@ -1,5 +1,6 @@
 #include "owlstd/str_hashmap.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +16,7 @@ typedef enum : uint8_t {
 } metadata_state_t;
 
 static metadata_state_t bitset_get(const uint8_t* bitset, const size_t i) {
+    assert(bitset);
     const size_t byte_index = i / 8;
     const size_t bit_index = i % 8;
     return bitset[byte_index] >> bit_index;
@@ -22,6 +24,7 @@ static metadata_state_t bitset_get(const uint8_t* bitset, const size_t i) {
 
 static void bitset_set(uint8_t* bitset, const size_t i,
                        const metadata_state_t value) {
+    assert(bitset);
     const size_t byte_index = i / 8;
     const size_t bit_index = i % 8;
     switch (value) {
@@ -47,6 +50,12 @@ static size_t probe(const size_t i, const size_t bucket_count) {
 static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
                          uint8_t* metadata, const size_t bucket_count,
                          const owl_str_const_t* key, const owl_str_t* value) {
+    assert(keys);
+    assert(values);
+    assert(metadata);
+    assert(key);
+    assert(value);
+
     const size_t hash = owl_str_hash(*key) % bucket_count;
 
     for (size_t i = hash;; i = probe(i, bucket_count)) {
@@ -64,6 +73,8 @@ static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
 }
 
 static double load_factor(const owl_str_hashmap_t* map) {
+    assert(map);
+
     if (map->bucket_count == 0) {
         return INFINITY;
     }
@@ -72,6 +83,8 @@ static double load_factor(const owl_str_hashmap_t* map) {
 }
 
 static void resize_if_needed(owl_str_hashmap_t* map) {
+    assert(map);
+
     if (load_factor(map) < MAX_LOAD_FACTOR) {
         return;
     }
@@ -120,9 +133,7 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
 }
 
 void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
-    if (!map) {
-        return;
-    }
+    assert(map);
 
     memset(map->metadata, 0,
            map->bucket_count / 8 + (map->bucket_count % 8 > 0));
@@ -131,9 +142,7 @@ void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
 }
 
 void owl_str_hashmap_free(owl_str_hashmap_t* map) {
-    if (!map) {
-        return;
-    }
+    assert(map);
 
     free(map->keys);
     free(map->values);
@@ -144,6 +153,8 @@ void owl_str_hashmap_free(owl_str_hashmap_t* map) {
 owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map,
                                   const owl_str_const_t key,
                                   const owl_str_t value) {
+    assert(map);
+
     resize_if_needed(map);
 
     owl_str_t* result = insert(map->keys, map->values, map->metadata,
@@ -159,6 +170,8 @@ owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map,
 owl_str_t* owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
                                              const owl_str_const_t key,
                                              const owl_str_t value) {
+    assert(map);
+
     resize_if_needed(map);
 
     owl_str_t* result = insert(map->keys, map->values, map->metadata,
@@ -175,6 +188,8 @@ owl_str_t* owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
 
 owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
                                const owl_str_const_t key) {
+    assert(map);
+
     if (map->bucket_count == 0) {
         return NULL;
     }

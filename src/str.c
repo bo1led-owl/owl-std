@@ -1,5 +1,6 @@
 #include "owlstd/str.h"
 
+#include <assert.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,10 +10,14 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
 owl_str_t owl_str_from_cstr(char* cstr) {
+    assert(cstr);
+
     return (owl_str_t){.data = cstr, .len = strlen(cstr)};
 }
 
 owl_str_const_t owl_str_from_const_cstr(const char* cstr) {
+    assert(cstr);
+
     return (owl_str_const_t){.data = cstr, .len = strlen(cstr)};
 }
 
@@ -21,6 +26,8 @@ owl_str_const_t owl_str_const_from_mut(const owl_str_t s) {
 }
 
 void owl_str_copy(owl_str_t* dest, owl_str_const_t src) {
+    assert(dest);
+
     memcpy(dest->data, src.data, sizeof(char) * src.len);
     dest->len = src.len;
 }

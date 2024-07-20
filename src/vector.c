@@ -1,5 +1,6 @@
 #include "owlstd/vector.h"
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -19,6 +20,8 @@ static size_t round_up_to_the_power_of_two(const size_t n) {
 
 void owl_vector_reserve(owl_vector_t* vec, const size_t elem_size,
                         const size_t new_capacity) {
+    assert(vec);
+
     if (vec->capacity >= new_capacity) {
         return;
     }
@@ -38,19 +41,19 @@ void owl_vector_reserve(owl_vector_t* vec, const size_t elem_size,
 }
 
 void owl_vector_push(owl_vector_t* vec, const size_t size, const void* elem) {
+    assert(vec);
     owl_vector_reserve(vec, size, vec->size + 1);
     memcpy((char*)vec->items + vec->size * size, elem, size);
     vec->size += 1;
 }
 
 void owl_vector_pop(owl_vector_t* vec, const size_t n) {
+    assert(vec);
     vec->size -= min(vec->size, n);
 }
 
 void owl_vector_free(owl_vector_t* vec) {
-    if (!vec) {
-        return;
-    }
+    assert(vec);
 
     free(vec->items);
     *vec = (owl_vector_t){};
