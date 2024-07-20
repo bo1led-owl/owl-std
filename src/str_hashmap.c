@@ -9,32 +9,34 @@ enum {
     MIN_SIZE = 16,
 };
 
-enum {
+typedef enum : uint8_t {
     META_EMPTY = 0,
     META_PRESENT = 1,
-};
+} metadata_state_t;
 
-void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
-    if (!map) {
-        return;
-    }
-
-    for (size_t i = 0; i < map->bucket_count; ++i) {
-        map->metadata[i] = META_EMPTY;
-    }
-
-    map->size = 0;
+static metadata_state_t bitset_get(const uint8_t* bitset, const size_t i) {
+    const size_t byte_index = i / 8;
+    const size_t bit_index = i % 8;
+    return bitset[byte_index] >> bit_index;
 }
 
-void owl_str_hashmap_free(owl_str_hashmap_t* map) {
-    if (!map) {
-        return;
+static void bitset_set(uint8_t* bitset, const size_t i,
+                       const metadata_state_t value) {
+    const size_t byte_index = i / 8;
+    const size_t bit_index = i % 8;
+    switch (value) {
+        case META_EMPTY:
+            bitset[byte_index] &= ~(1 << bit_index);
+            return;
+        case META_PRESENT:
+            bitset[byte_index] |= 1 << bit_index;
+            return;
     }
+}
 
-    free(map->keys);
-    free(map->values);
-    free(map->metadata);
-    *map = (owl_str_hashmap_t){};
+static size_t bitset_bytes_needed(const size_t n) {
+    const size_t extra_byte = (n % 8) != 0;
+    return (n / 8) + extra_byte;
 }
 
 static size_t probe(const size_t i, const size_t bucket_count) {
@@ -43,13 +45,13 @@ static size_t probe(const size_t i, const size_t bucket_count) {
 }
 
 static owl_str_t* insert(owl_str_const_t* keys, owl_str_t* values,
-                         char* metadata, const size_t bucket_count,
+                         uint8_t* metadata, const size_t bucket_count,
                          const owl_str_const_t* key, const owl_str_t* value) {
     const size_t hash = owl_str_hash(*key) % bucket_count;
 
     for (size_t i = hash;; i = probe(i, bucket_count)) {
-        if (metadata[i] == META_EMPTY) {
-            metadata[i] = META_PRESENT;
+        if (bitset_get(metadata, i) == META_EMPTY) {
+            bitset_set(metadata, i, META_PRESENT);
             memcpy(keys + i, key, sizeof(owl_str_const_t));
             memcpy(values + i, value, sizeof(owl_str_t));
             return NULL;
@@ -78,7 +80,7 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
         *map = (owl_str_hashmap_t){
             .keys = calloc(MIN_SIZE, sizeof(owl_str_const_t)),
             .values = calloc(MIN_SIZE, sizeof(owl_str_t)),
-            .metadata = calloc(MIN_SIZE, sizeof(char)),
+            .metadata = calloc(bitset_bytes_needed(MIN_SIZE), sizeof(uint8_t)),
             .bucket_count = MIN_SIZE,
             .size = map->size,
         };
@@ -89,12 +91,13 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
     owl_str_const_t* new_keys =
         malloc(new_bucket_count * sizeof(owl_str_const_t));
     owl_str_t* new_values = malloc(new_bucket_count * sizeof(owl_str_t));
-    char* new_metadata = calloc(new_bucket_count, sizeof(char));
+    uint8_t* new_metadata =
+        calloc(bitset_bytes_needed(new_bucket_count), sizeof(uint8_t));
 
     // rehashing
     for (size_t i = 0, moved_elements = 0;
          i < map->bucket_count && moved_elements < map->size; ++i) {
-        if (map->metadata[i] == META_EMPTY) {
+        if (bitset_get(map->metadata, i) == META_EMPTY) {
             continue;
         }
 
@@ -116,8 +119,31 @@ static void resize_if_needed(owl_str_hashmap_t* map) {
     };
 }
 
-owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
-                           const owl_str_t value) {
+void owl_str_hashmap_clear(owl_str_hashmap_t* map) {
+    if (!map) {
+        return;
+    }
+
+    memset(map->metadata, 0,
+           map->bucket_count / 8 + (map->bucket_count % 8 > 0));
+
+    map->size = 0;
+}
+
+void owl_str_hashmap_free(owl_str_hashmap_t* map) {
+    if (!map) {
+        return;
+    }
+
+    free(map->keys);
+    free(map->values);
+    free(map->metadata);
+    *map = (owl_str_hashmap_t){};
+}
+
+owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map,
+                                  const owl_str_const_t key,
+                                  const owl_str_t value) {
     resize_if_needed(map);
 
     owl_str_t* result = insert(map->keys, map->values, map->metadata,
@@ -131,8 +157,8 @@ owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t 
 }
 
 owl_str_t* owl_str_hashmap_insert_or_replace(owl_str_hashmap_t* map,
-                                       const owl_str_const_t key,
-                                       const owl_str_t value) {
+                                             const owl_str_const_t key,
+                                             const owl_str_t value) {
     resize_if_needed(map);
 
     owl_str_t* result = insert(map->keys, map->values, map->metadata,
@@ -156,7 +182,7 @@ owl_str_t* owl_str_hashmap_get(const owl_str_hashmap_t* map,
     const size_t hash = owl_str_hash(key) % map->bucket_count;
 
     for (size_t i = hash;; i = probe(i, map->bucket_count)) {
-        if (map->metadata[i] == META_EMPTY) {
+        if (bitset_get(map->metadata, i) == META_EMPTY) {
             return NULL;
         }
 

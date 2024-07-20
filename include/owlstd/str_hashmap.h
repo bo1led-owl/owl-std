@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "str.h"
 
 #ifdef __cplusplus
@@ -9,8 +11,7 @@ extern "C" {
 typedef struct owl_str_hashmap {
     owl_str_const_t* keys;
     owl_str_t* values;
-
-    char* metadata;  // TODO replace with a bitset?
+    uint8_t* metadata;  // bitset
 
     size_t bucket_count;
     size_t size;
@@ -30,8 +31,9 @@ void owl_str_hashmap_free(owl_str_hashmap_t* map);
 Insert a new key-value pair into the hashmap. Returns a pointer to the inserted
 value or an existing value if the key was present
 */
-owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map, const owl_str_const_t key,
-                           const owl_str_t value);
+owl_str_t* owl_str_hashmap_insert(owl_str_hashmap_t* map,
+                                  const owl_str_const_t key,
+                                  const owl_str_t value);
 
 /*
 Insert a key-value pair into the hashmap, or replace the value if the key was
