@@ -24,4 +24,6 @@ int main() {
         }
     }
     printf(" }\n");
+
+    owl_vector_free(&vec);
 }
