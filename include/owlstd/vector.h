@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 /*
-Dynamic array of any type.
+Dynamic array of elements of any type.
 Does not contain information about element size, make sure that `elem_size`
 argument is always the same for each vector.
 */
