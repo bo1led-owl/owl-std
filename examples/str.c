@@ -30,17 +30,17 @@ void print_in_all_cases(owl_str_const_t s) {
     owl_str_copy(&buf, s);
 
     printf("original: `");
-    owl_str_print(owl_str_const_from_mut(buf));
+    owl_str_print(owl_str_to_const(buf));
     printf("`\n");
 
     owl_str_to_lower(buf);
     printf("lowercase: `");
-    owl_str_print(owl_str_const_from_mut(buf));
+    owl_str_print(owl_str_to_const(buf));
     printf("`\n");
 
     owl_str_to_upper(buf);
     printf("uppercase: `");
-    owl_str_print(owl_str_const_from_mut(buf));
+    owl_str_print(owl_str_to_const(buf));
     printf("`\n");
 
     free(buf.data);

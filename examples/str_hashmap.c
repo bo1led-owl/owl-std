@@ -11,7 +11,7 @@ void print_phone_number(const owl_str_hashmap_t* phone_book, const char* name) {
 
     if (phone) {
         printf("%s's phone number is `", name);
-        owl_str_print(owl_str_const_from_mut(*phone));
+        owl_str_print(owl_str_to_const(*phone));
         printf("`\n");
     } else {
         printf("%s's phone number is not present in the phone book\n", name);

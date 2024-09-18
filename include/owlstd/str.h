@@ -36,7 +36,7 @@ owl_str_const_t owl_str_from_const_cstr(const char* cstr);
 /*
 Create an `owl_str_const` object from an `owl_str` object
 */
-owl_str_const_t owl_str_const_from_mut(owl_str_t s);
+owl_str_const_t owl_str_to_const(owl_str_t s);
 
 /*
 Copy string data from `src` to `dest`. If `dest` has insufficient space,

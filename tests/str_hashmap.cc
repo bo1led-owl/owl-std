@@ -27,9 +27,9 @@ TEST(StrHashMap, Basic) {
     }
 
     for (size_t i = 0; i < SIZE; ++i) {
-        owl_str_const_t expected = owl_str_const_from_mut(values[i]);
+        owl_str_const_t expected = owl_str_to_const(values[i]);
         owl_str_const_t actual =
-            owl_str_const_from_mut(*owl_str_hashmap_get(&map, keys[i]));
+            owl_str_to_const(*owl_str_hashmap_get(&map, keys[i]));
         EXPECT_TRUE(owl_str_compare(expected, actual) == 0);
     }
 
@@ -61,9 +61,9 @@ TEST(StrHashMap, InsertOrReplace) {
 
     // check
     for (size_t i = 0; i < 2; ++i) {
-        owl_str_const_t expected = owl_str_const_from_mut(values[i]);
+        owl_str_const_t expected = owl_str_to_const(values[i]);
         owl_str_const_t actual =
-            owl_str_const_from_mut(*owl_str_hashmap_get(&map, keys[i]));
+            owl_str_to_const(*owl_str_hashmap_get(&map, keys[i]));
         EXPECT_TRUE(owl_str_compare(expected, actual) == 0);
     }
 
@@ -75,9 +75,9 @@ TEST(StrHashMap, InsertOrReplace) {
 
     // check again
     for (size_t i = 2; i < 4; ++i) {
-        owl_str_const_t expected = owl_str_const_from_mut(values[i]);
+        owl_str_const_t expected = owl_str_to_const(values[i]);
         owl_str_const_t actual =
-            owl_str_const_from_mut(*owl_str_hashmap_get(&map, keys[i]));
+            owl_str_to_const(*owl_str_hashmap_get(&map, keys[i]));
         EXPECT_TRUE(owl_str_compare(expected, actual) == 0);
     }
 

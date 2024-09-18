@@ -21,7 +21,7 @@ owl_str_const_t owl_str_from_const_cstr(const char* cstr) {
     return (owl_str_const_t){.data = cstr, .len = strlen(cstr)};
 }
 
-owl_str_const_t owl_str_const_from_mut(const owl_str_t s) {
+owl_str_const_t owl_str_to_const(const owl_str_t s) {
     return (owl_str_const_t){.data = s.data, .len = s.len};
 }
 

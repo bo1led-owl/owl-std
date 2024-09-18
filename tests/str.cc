@@ -28,7 +28,7 @@ TEST(Str, FromCStr) {
 TEST(Str, ConstFromMut) {
     char cstr[] = "hello";
     owl_str_t str_mut = owl_str_from_cstr(cstr);
-    owl_str_const_t str_const = owl_str_const_from_mut(str_mut);
+    owl_str_const_t str_const = owl_str_to_const(str_mut);
 
     EXPECT_TRUE(sign(strcmp(str_mut.data, str_const.data)) == 0);
     EXPECT_EQ(str_mut.len, str_const.len);
