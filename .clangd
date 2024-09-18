@@ -1,2 +1,17 @@
+CompileOptions:
+	Add: [-std=c99, -Wall, -Wextra]
+
+If:
+	PathMatch: .*\.c
+CompileOptions:
+	Add: [-xc]
+
+If:
+	PathMatch: .*\.h
 CompileFlags:
-  Add: [-Wall, -Wextra]
+	Add: [-xc-header]
+
+If:
+	PathMatch: .*\.(cc|cpp)
+CompileOptions:
+	Add: [-xcpp]
